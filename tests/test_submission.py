@@ -79,3 +79,35 @@ def test_zip_is_flat_and_refuses_invalid():
     assert names == ["door_predictions.csv"]           # top level, no folders
     with pytest.raises(ValueError, match="refusing"):
         build_predictions_zip({"door": door(prediction=["bad"])})
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "repo" / "PS3" / "02_Datasets"
+
+
+@pytest.mark.skipif(not DATA.exists(), reason="dataset absent")
+def test_shipped_csv_is_what_the_app_itself_produces():
+    """Spec Section 4.1 item 2: the CSVs in predictions.zip must be the output of running
+    the held-out inputs through the app. Drive the Door page exactly as an operator does
+    and require the result to match the shipped file byte for byte."""
+    import os
+    os.environ["NEBULA_TEST_PAGE"] = "door"
+    os.environ["NEBULA_EVENTS_PATH"] = str(ROOT / "data" / "events.jsonl")
+    from streamlit.testing.v1 import AppTest
+
+    at = AppTest.from_file(str(ROOT / "app" / "streamlit_app.py"), default_timeout=600)
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    run = [b for b in at.button if "Analyse" in b.label]
+    assert run, "the Door page offers no Analyse button"
+    run[0].click().run()
+    assert not at.exception, [e.value for e in at.exception]
+
+    from_ui = at.session_state["door_result"]["predictions"]
+    assert validate_submission("door", from_ui) == []
+    shipped = pd.read_csv(ROOT / "predictions" / "door_predictions.csv")
+    assert from_ui.to_csv(index=False).strip() == shipped.to_csv(index=False).strip(), (
+        "predictions/door_predictions.csv is not what the app produces - rebuild it with "
+        "scripts.build_predictions before submitting")
+    # and the download the operator actually gets is offered, i.e. it passed validation
+    assert any("door_predictions.csv" in d.label for d in at.get("download_button"))

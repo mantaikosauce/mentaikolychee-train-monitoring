@@ -23,6 +23,9 @@ desktop.ini
 scratch/
 *.tmp
 
+# Built submission folder, rebuilt by scripts/package_submission.py
+dist/
+
 # Model artifacts ARE committed on purpose: they are small, and the handoff
 # contract says a teammate must be able to run the smoke test without
 # retraining. If an artifact ever exceeds ~50 MB, revisit this.
@@ -32,7 +35,6 @@ artifacts_cache/
 predictions/analysis_cache.pkl
 data/events.jsonl
 data/events_actions.jsonl
-app/static/
 data/uploads/
 data/retrain_log.json
 

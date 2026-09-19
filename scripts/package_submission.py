@@ -23,7 +23,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 EXCLUDE = {"repo", ".venv", "venv", "artifacts_cache", ".git", ".pytest_cache", "__pycache__",
-           "dist", ".ipynb_checkpoints"}
+           "dist", ".ipynb_checkpoints",
+           # Runtime state this machine happens to have accumulated, never part of the
+           # deliverable: data/uploads alone reached 7.5 GB during development, and the
+           # operator log refers to files that would not travel with it.
+           "uploads", "events.jsonl", "events_actions.jsonl", "retrain_log.json"}
+MAX_APP_MB = 200          # a sane ceiling for "the app, without any dataset"
 FOLDER = {"door": "Door", "acv": "ACV", "rail": "Rail Corrugation", "shm": "SHM"}
 
 
@@ -51,6 +56,13 @@ def main() -> None:
 
     copy_tree(ROOT, team / "app")
     (team / "app" / "predictions").mkdir(exist_ok=True)
+    app_mb = sum(f.stat().st_size for f in (team / "app").rglob("*") if f.is_file()) / 1e6
+    if app_mb > MAX_APP_MB:
+        big = sorted(((sum(f.stat().st_size for f in d.rglob("*") if f.is_file()), d)
+                      for d in (team / "app").iterdir() if d.is_dir()), reverse=True)[:5]
+        raise SystemExit(f"app/ is {app_mb:,.0f} MB, over the {MAX_APP_MB} MB ceiling - something "
+                         f"local was copied in. Largest: "
+                         + ", ".join(f"{d.name} {n / 1e6:,.0f} MB" for n, d in big))
 
     opt = team / "Optional_Items"
     opt.mkdir()

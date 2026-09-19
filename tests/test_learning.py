@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core import drift, events  # noqa: E402
 
-STATIC = ROOT / "app" / "static"
+# The Door test stream, used to exercise the retrain gate on real signal.
+STATIC = ROOT / "repo" / "PS3" / "02_Datasets" / "Door"
 
 
 def _use_tmp_log(tmp_path):
@@ -72,3 +73,20 @@ def test_retrain_gate_dry_run_on_synthetic_door_outcomes(tmp_path):
     assert r.returncode == 0, r.stderr[-1500:]
     assert "door:" in r.stdout and ("kept incumbent" in r.stdout or "PROMOTED" in r.stdout), r.stdout
     assert (ROOT / "subsystems" / "door" / "artifacts" / "model.joblib").stat().st_mtime == before
+
+
+def test_upload_store_stays_under_its_budget(tmp_path, monkeypatch):
+    """A long-lived instance must not fill its disk: the oldest runs are dropped, the
+    newest is always kept, and a dropped run just stops offering retrain examples."""
+    _use_tmp_log(tmp_path)
+    monkeypatch.setattr(events, "UPLOADS_BUDGET_BYTES", 5_000)
+    blob = b"x" * 2_000
+    for i in range(6):
+        p = events.store_upload(f"Run {i:02d}", "Test.csv", blob)
+        import os as _os
+        _os.utime(p, (1_700_000_000 + i, 1_700_000_000 + i))   # run i is older than run i+1
+    total = sum(f.stat().st_size for f in events.UPLOADS_DIR.rglob("*") if f.is_file())
+    assert total <= 5_000, f"upload store grew to {total} bytes"
+    left = sorted(d.name for d in events.UPLOADS_DIR.iterdir() if d.is_dir())
+    assert "Run_05" in left, "the newest run must survive"
+    assert "Run_00" not in left, "the oldest run should have been dropped"

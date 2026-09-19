@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -367,6 +368,40 @@ def outcomes() -> pd.DataFrame:
     return got.reset_index(drop=True)
 
 
+UPLOADS_BUDGET_BYTES = int(float(os.environ.get("NEBULA_UPLOADS_BUDGET_MB", "1024")) * 1e6)
+
+
+def prune_uploads(keep: Path | None = None) -> int:
+    """Hold the upload store under its budget, dropping whole runs oldest-first.
+
+    Every analysed file is kept so a retrain can go back to the raw signal, but a
+    long-lived instance would otherwise grow without limit - during development this
+    store reached 7.5 GB, more than a Cloud Run or Streamlit Cloud disk would take.
+    A dropped run simply stops contributing retrain examples: outcomes() reports
+    stored_file as None for it and scripts/retrain.py already skips those rows.
+    Returns the number of bytes freed.
+    """
+    if not UPLOADS_DIR.exists():
+        return 0
+    runs = []
+    for d in UPLOADS_DIR.iterdir():
+        if not d.is_dir() or d == keep:
+            continue
+        files = [f for f in d.rglob("*") if f.is_file()]
+        if files:
+            runs.append((max(f.stat().st_mtime for f in files),
+                         sum(f.stat().st_size for f in files), d))
+    total = sum(n for _, n, _ in runs) + (
+        sum(f.stat().st_size for f in keep.rglob("*") if f.is_file()) if keep and keep.exists() else 0)
+    freed = 0
+    for _, n, d in sorted(runs):                     # oldest run first
+        if total - freed <= UPLOADS_BUDGET_BYTES:
+            break
+        shutil.rmtree(d, ignore_errors=True)
+        freed += n
+    return freed
+
+
 def store_upload(dataset: str | None, name: str, data: bytes) -> Path:
     """Keep the raw file beside the log so a retrain can go back to the signal."""
     folder = UPLOADS_DIR / (re.sub(r"[^A-Za-z0-9._-]+", "_", dataset or "unnamed"))
@@ -374,6 +409,7 @@ def store_upload(dataset: str | None, name: str, data: bytes) -> Path:
     p = folder / name
     if not p.exists():
         p.write_bytes(data)
+    prune_uploads(keep=folder)
     return p
 
 

@@ -1,4 +1,4 @@
-"""Press every button and change every input on every page, and fail on any exception.
+"""Press every enabled button and change every input on every page, and fail on any exception.
 
 test_pages.py proves each page RENDERS; this proves each page survives being USED.
 With the cached competition run in session and a fleet log built from it, every
@@ -138,6 +138,10 @@ def exercise(page: str, workdir: Path) -> tuple[list[str], dict]:
                 continue
             kind = type(w).__name__
             if any(x in key for x in SKIP_KEYS_CONTAINING):
+                continue
+            # A disabled widget is correct app behaviour (e.g. Run before a file is
+            # chosen); a browser user cannot click it, and the harness refuses to.
+            if getattr(w, "disabled", False):
                 continue
             if kind == "Slider" and key.startswith("top_win_"):      # datetime range slider
                 continue
