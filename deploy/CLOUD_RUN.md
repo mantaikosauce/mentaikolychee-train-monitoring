@@ -5,8 +5,8 @@ because every page works from uploads and the station map is bundled.
 
 ## A. Streamlit Community Cloud (no container, free)
 
-1. Push to GitHub (done: `mantaikosauce/train-monitoring-app`, branch `master`).
-2. https://share.streamlit.io → Create app → repo, branch `master`, main file
+1. Push to GitHub (done: `mantaikosauce/mentaikolychee-train-monitoring`, branch `main`).
+2. https://share.streamlit.io → Create app → repo, branch `main`, main file
    `app/streamlit_app.py`, Advanced settings → Python 3.12. No secrets.
 3. Free tier has about 1 GB RAM: upload Rail files a few at a time.
 

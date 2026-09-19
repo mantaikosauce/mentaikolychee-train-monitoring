@@ -2,7 +2,7 @@
 
 > On a new PC: start with `TAKEOVER/README.md` (one-command setup) and paste
 > `TAKEOVER/PROMPT_FOR_AI.md` into the assistant. Repository:
-> https://github.com/mantaikosauce/train-monitoring-app
+> https://github.com/mantaikosauce/mentaikolychee-train-monitoring
 
 NebulaX Problem Statement 3, Train Condition Monitoring. This file exists so a
 dead token budget, a crashed machine or a fresh chat costs minutes, not hours.

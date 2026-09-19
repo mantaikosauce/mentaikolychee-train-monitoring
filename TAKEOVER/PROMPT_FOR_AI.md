@@ -21,8 +21,8 @@ Rules you must keep:
 - Every figure shown to the user comes from subsystems/*/artifacts/*.json or a
   benchmark file; regenerate WRITEUP.md with `python -m scripts.write_up`.
 - Run the tests before every push; the page tests render every page headlessly.
-- Push to GitHub (origin master) after each verified step; Streamlit Cloud deploys
-  from master. If a cloud page errors after a deploy, Manage app → Reboot once.
+- Push to GitHub (origin main) after each verified step; Streamlit Cloud deploys
+  from main. If a cloud page errors after a deploy, Manage app → Reboot once.
 - The app must stay usable by a non-technical operator: actions first, evidence
   behind an Engineer view, plain-language "How to read this" on every subsystem.
 

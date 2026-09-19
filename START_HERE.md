@@ -6,7 +6,7 @@ Three ways in, from easiest to most complete. Pick one.
 
 ## A. Just use the app in a browser (no install)
 
-The app is deployed on Streamlit Community Cloud from this repository's `master`
+The app is deployed on Streamlit Community Cloud from this repository's `main`
 branch. Open the app link the team shared (it ends in `.streamlit.app`).
 
 If a page shows a red error box after a new version was pushed: click **Manage app**
@@ -40,8 +40,8 @@ Prerequisites, both free:
 Open **PowerShell** and paste these three lines one at a time:
 
 ```powershell
-git clone https://github.com/mantaikosauce/train-monitoring-app.git
-cd train-monitoring-app
+git clone https://github.com/mantaikosauce/mentaikolychee-train-monitoring.git
+cd mentaikolychee-train-monitoring
 powershell -ExecutionPolicy Bypass -File TAKEOVER\setup.ps1
 ```
 
@@ -83,7 +83,7 @@ Everyday commands (run from the project folder):
 | Retrain from operator outcomes (gated) | `.venv\Scripts\python -m scripts.retrain --dry-run` |
 | Deploy to Google Cloud Run | install gcloud, `gcloud auth login`, then `deploy\deploy_cloud_run.ps1` |
 
-Push to GitHub after each verified step; the cloud app redeploys from `master`.
+Push to GitHub after each verified step; the cloud app redeploys from `main`.
 
 ---
 

@@ -8,8 +8,8 @@ except the 7.6 GB dataset, which is re-cloned by the script below.
 Open PowerShell anywhere and run:
 
 ```powershell
-git clone https://github.com/mantaikosauce/train-monitoring-app.git
-cd train-monitoring-app
+git clone https://github.com/mantaikosauce/mentaikolychee-train-monitoring.git
+cd mentaikolychee-train-monitoring
 powershell -ExecutionPolicy Bypass -File TAKEOVER\setup.ps1
 ```
 
@@ -52,7 +52,7 @@ existing session id from anywhere.
 | Model search (pre-registered) | `python -m scripts.model_search` |
 | Learning loop: retrain from operator outcomes (gated) | `python -m scripts.retrain [--dry-run]`; outcomes come from closing faults in the work queue; drift stats via `python -m scripts.feature_stats` |
 | Cloud Run deploy | `deploy/CLOUD_RUN.md`, `deploy/deploy_cloud_run.ps1` |
-| Streamlit Cloud | deploys from `master` automatically; Manage app → Reboot if a page errors after a deploy |
+| Streamlit Cloud | deploys from `main` automatically; Manage app → Reboot if a page errors after a deploy |
 
 ## 5. Unfinished, in priority order
 
