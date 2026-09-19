@@ -1,0 +1,66 @@
+{
+  "model_version": "rail-v2",
+  "origin": "ported from PS3/final_streamlit_app (balanced RandomForest, 300 trees, max_features 0.7, seed 42); artifact sha256 5d97e135...9179; v2 = rf_0.7_leaf3 on base features, adopted by scripts/model_search.py (artifacts/benchmark.json); note: the search's 'base' feature set = the ported features plus the measured speed (wl_speed_m_s)",
+  "labels": [
+    "Normal",
+    "Side I",
+    "Side II"
+  ],
+  "n_training_files": 272,
+  "class_counts": {
+    "Normal": 234,
+    "Side I": 14,
+    "Side II": 24
+  },
+  "sample_rate_hz": 10000,
+  "wheel": {
+    "teeth": 90,
+    "diameter_m": 0.85
+  },
+  "validation": {
+    "split": "5 stratified grouped folds over 272 files (original fold ids), side-swap augmentation inside training folds; candidate chosen by 5x3 repeated grouped CV; nested estimate of the search reported alongside",
+    "metric": "macro F1 over Normal / Side I / Side II (Rail Info Kit Section 4)",
+    "mean_score": 0.829,
+    "std_score": 0.0594,
+    "pooled_out_of_fold_score": 0.8193,
+    "folds": [
+      0.8261,
+      0.7937,
+      0.7388,
+      0.8963,
+      0.8899
+    ],
+    "per_class_f1": {
+      "Normal": 0.9717,
+      "Side I": 0.7143,
+      "Side II": 0.7719
+    },
+    "side_i_recall": 0.7143,
+    "always_normal_baseline": 0.3083,
+    "in_sample_score": 0.9171,
+    "original_build_reported": {
+      "mean_score": 0.8551,
+      "std_score": 0.0502,
+      "pooled_out_of_fold_score": 0.8524,
+      "folds": [
+        0.7925,
+        0.8188,
+        0.8483,
+        0.8788,
+        0.9372
+      ],
+      "per_class_f1": {
+        "Normal": 0.9744,
+        "Side I": 0.72,
+        "Side II": 0.8627
+      },
+      "side_i_recall": 0.6429,
+      "note": "best of 5 candidates selected on these folds in the original build"
+    },
+    "fresh_shuffles_mean": 0.8134,
+    "repeated_cv_mean": 0.8285,
+    "repeated_cv_std": 0.0151,
+    "nested_search_estimate": 0.8034,
+    "features": "ported per-side statistics and spectral bands + measured speed from the 90-tooth pulse"
+  }
+}

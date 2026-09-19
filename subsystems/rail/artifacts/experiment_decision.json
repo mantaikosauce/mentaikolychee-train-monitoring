@@ -1,0 +1,130 @@
+{
+  "protocol": "Pre-registered Rail experiment: does the DECISION rule, not the model, cost macro F1?\n\n    python scripts/rail_decision_experiment.py\n\nOut-of-fold errors of rail-v2 are mostly Normal files called Side II (9 of 17), so\nthe question is where the Normal / corrugated boundary sits, not which side.\n\nCandidates, all on the v2 feature set (\"base\") with the v2 forest (300 trees,\nmax_features 0.7, min_samples_leaf 3, balanced) and side-swap augmentation inside\ntraining folds only:\n\n  flat      rail-v2 as shipped: argmax of the 3-class probabilities.\n  thresh    same forest; predict corrugated only when P(Normal) < t, then the likelier\n            side. t is chosen INSIDE each training fold by 3-fold grouped CV over a\n            fixed grid, so the held-out fold never influences it.\n  hier      two stages: forest A = Normal vs corrugated, forest B = Side I vs Side II\n            trained on corrugated files only (side-swap doubles them). Decision at 0.5.\n\nProtocol: 5 stratified grouped folds x 3 seeds (groups = identical-feature files),\nmacro F1 over Normal / Side I / Side II pooled per repeat.\nDecision: adopt a candidate only if its mean beats flat by >= 0.01 AND it is not\nworse than flat on any of the 3 repeats. Otherwise rail-v2 stays. Written to\nsubsystems/rail/artifacts/experiment_decision.json either way.",
+  "table": [
+    {
+      "candidate": "flat",
+      "repeats": [
+        0.8142,
+        0.8493,
+        0.8218
+      ],
+      "mean": 0.8285,
+      "std": 0.0151,
+      "confusion_summed_over_repeats": {
+        "rows_truth_cols_pred": [
+          "Normal",
+          "Side I",
+          "Side II"
+        ],
+        "matrix": [
+          [
+            665,
+            9,
+            28
+          ],
+          [
+            7,
+            32,
+            3
+          ],
+          [
+            0,
+            5,
+            67
+          ]
+        ]
+      }
+    },
+    {
+      "candidate": "thresh",
+      "repeats": [
+        0.8116,
+        0.8041,
+        0.8358
+      ],
+      "mean": 0.8172,
+      "std": 0.0135,
+      "confusion_summed_over_repeats": {
+        "rows_truth_cols_pred": [
+          "Normal",
+          "Side I",
+          "Side II"
+        ],
+        "matrix": [
+          [
+            666,
+            10,
+            26
+          ],
+          [
+            9,
+            30,
+            3
+          ],
+          [
+            0,
+            5,
+            67
+          ]
+        ]
+      }
+    },
+    {
+      "candidate": "hier",
+      "repeats": [
+        0.7601,
+        0.7383,
+        0.8298
+      ],
+      "mean": 0.7761,
+      "std": 0.0391,
+      "confusion_summed_over_repeats": {
+        "rows_truth_cols_pred": [
+          "Normal",
+          "Side I",
+          "Side II"
+        ],
+        "matrix": [
+          [
+            664,
+            13,
+            25
+          ],
+          [
+            13,
+            27,
+            2
+          ],
+          [
+            1,
+            9,
+            62
+          ]
+        ]
+      }
+    }
+  ],
+  "thresholds_chosen_inside_folds": [
+    0.3,
+    0.55,
+    0.4,
+    0.35,
+    0.3,
+    0.3,
+    0.3,
+    0.45,
+    0.3,
+    0.3,
+    0.3,
+    0.35,
+    0.5,
+    0.3,
+    0.3
+  ],
+  "decision": {
+    "adopt": false,
+    "candidate": "flat",
+    "reason": "best alternative thresh 0.8172 vs flat 0.8285"
+  },
+  "seconds": 375
+}
